@@ -1,0 +1,65 @@
+using System;
+using GestionParking.Enums;
+
+namespace GestionParking.Models
+{
+    public class Paiement
+    {
+        private static int compteur = 0;
+
+        private int id;
+        private double montant;
+        private DateTime datePaiement;
+        private ModePaiement mode;
+        private string statut;   
+
+        public Paiement(double montant, ModePaiement mode, Reservation reservation)
+        {
+            id = ++compteur;
+            this.montant = montant;
+            this.mode = mode;
+            Reservation = reservation;
+            statut = "EN_ATTENTE";
+        }
+
+        public int Id => id;
+        public double Montant => montant;
+        public DateTime DatePaiement => datePaiement;
+        public ModePaiement Mode => mode;
+        public string Statut => statut;
+        public Reservation Reservation { get; }
+
+        public bool Effectuer()
+        {
+            if (statut != "EN_ATTENTE" || montant <= 0)
+                return false;
+
+            datePaiement = DateTime.Now;
+            statut = "EFFECTUE";
+            Console.WriteLine($"Paiement #{id} de {montant:0.00} € effectué ({mode}).");
+            return true;
+        }
+
+        public void Rembourser()
+        {
+            if (statut != "EFFECTUE")
+                throw new InvalidOperationException("Seul un paiement effectué peut être remboursé.");
+            statut = "REMBOURSE";
+            Console.WriteLine($"Paiement #{id} remboursé : {montant:0.00} €.");
+        }
+
+        public string GenererRecu()
+        {
+            return "----------- REÇU -----------\n" +
+                   $"Paiement n°   : {id}\n" +
+                   $"Réservation   : #{Reservation.Id}\n" +
+                   $"Client        : {Reservation.Client.Prenom} {Reservation.Client.Nom}\n" +
+                   $"Place         : {Reservation.Place.Numero}\n" +
+                   $"Montant       : {montant:0.00} €\n" +
+                   $"Mode          : {mode}\n" +
+                   $"Date          : {datePaiement:dd/MM/yyyy HH:mm}\n" +
+                   $"Statut        : {statut}\n" +
+                   "----------------------------";
+        }
+    }
+}
