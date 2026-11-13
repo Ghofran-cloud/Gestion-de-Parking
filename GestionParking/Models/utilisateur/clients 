@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace GestionParking.Models
+{
+    public class Client : Utilisateur
+    {
+        private string telephone;
+
+        // Client 1 --- 0..* Vehicule (possède)
+        private readonly List<Vehicule> vehicules = new List<Vehicule>();
+
+        // Client 1 --- 0..* Reservation (effectue)
+        private readonly List<Reservation> reservations = new List<Reservation>();
+
+        public Client(int id, string nom, string prenom, string email, string motDePasse, string telephone)
+            : base(id, nom, prenom, email, motDePasse)
+        {
+            this.telephone = telephone;
+        }
+
+        public string Telephone
+        {
+            get => telephone;
+            set => telephone = value;
+        }
+
+        public IReadOnlyList<Vehicule> Vehicules => vehicules;
+
+        /// <summary>
+        /// Réserve une place pour un créneau. Si aucun véhicule n'est précisé,
+        /// le premier véhicule du client est utilisé.
+        /// </summary>
+        public Reservation Reserver(Place place, DateTime debut, DateTime fin, Vehicule vehicule = null)
+        {
+            if (fin <= debut)
+                throw new ArgumentException("La date de fin doit être après la date de début.");
+
+            vehicule ??= vehicules.FirstOrDefault()
+                ?? throw new InvalidOperationException("Le client doit posséder au moins un véhicule.");
+
+            if (!place.EstDisponible(debut, fin))
+                throw new InvalidOperationException($"La place {place.Numero} n'est pas disponible sur ce créneau.");
+
+            var reservation = new Reservation(debut, fin, this, place, vehicule);
+            reservations.Add(reservation);
+            Console.WriteLine($"Réservation #{reservation.Id} créée pour la place {place.Numero}.");
+            return reservation;
+        }
+
+        public void AnnulerReservation(Reservation r)
+        {
+            if (!reservations.Contains(r))
+                throw new InvalidOperationException("Cette réservation n'appartient pas à ce client.");
+            r.Annuler();
+        }
+
+        public List<Place> ConsulterPlacesDisponibles(Parking p)
+        {
+            return p.GetPlacesDisponibles();
+        }
+
+        public List<Reservation> ConsulterHistorique()
+        {
+            return reservations.OrderByDescending(r => r.DateDebut).ToList();
+        }
+
+        public void AjouterVehicule(Vehicule v)
+        {
+            if (vehicules.Any(x => x.Immatriculation == v.Immatriculation))
+                throw new InvalidOperationException("Ce véhicule est déjà enregistré.");
+            vehicules.Add(v);
+        }
+    }
+}

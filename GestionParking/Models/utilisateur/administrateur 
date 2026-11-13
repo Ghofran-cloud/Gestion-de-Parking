@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+
+namespace GestionParking.Models
+{
+    public class Administrateur : Utilisateur
+    {
+        private string role;
+
+        // Administrateur 1 --- 0..* Parking (gère)
+        private readonly List<Parking> parkings = new List<Parking>();
+
+        public Administrateur(int id, string nom, string prenom, string email, string motDePasse, string role)
+            : base(id, nom, prenom, email, motDePasse)
+        {
+            this.role = role;
+        }
+
+        public string Role
+        {
+            get => role;
+            set => role = value;
+        }
+
+        public IReadOnlyList<Parking> Parkings => parkings;
+
+        public void AjouterParking(Parking p)
+        {
+            if (!parkings.Contains(p))
+                parkings.Add(p);
+        }
+
+        public void AjouterPlace(Parking p, Place pl)
+        {
+            p.AjouterPlace(pl);
+        }
+
+        /// <summary>
+        /// Remplace, dans tous les parkings gérés, le tarif ayant le même type de place.
+        /// </summary>
+        public void ModifierTarif(Tarif t)
+        {
+            foreach (var p in parkings)
+                p.AjouterOuRemplacerTarif(t);
+            Console.WriteLine($"Tarif '{t.TypePlace}' mis à jour : {t.PrixHeure} €/h, {t.PrixJour} €/jour.");
+        }
+
+        public void ConsulterStatistiques()
+        {
+            Console.WriteLine("===== Statistiques =====");
+            foreach (var p in parkings)
+            {
+                Console.WriteLine($"{p.Nom} : {p.GetNombrePlacesLibres()}/{p.Places.Count} places libres, " +
+                                  $"taux d'occupation {p.GetTauxOccupation():P0}");
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+namespace GestionParking.Models
+{
+    public class Vehicule
+    {
+        private string immatriculation;
+        private string marque;
+        private string modele;
+        private string type;
+
+        public Vehicule(string immatriculation, string marque, string modele, string type)
+        {
+            this.immatriculation = immatriculation;
+            this.marque = marque;
+            this.modele = modele;
+            this.type = type;
+        }
+
+        public string Immatriculation => immatriculation;
+        public string Marque { get => marque; set => marque = value; }
+        public string Modele { get => modele; set => modele = value; }
+        public string Type { get => type; set => type = value; }
+
+        public override string ToString() => $"{marque} {modele} ({immatriculation})";
+    }
+}
