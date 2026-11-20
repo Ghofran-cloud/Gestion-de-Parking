@@ -1,58 +1,36 @@
-using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace GestionParking.Models
 {
     public class Administrateur : Utilisateur
     {
-        private string role;
+        public string Role { get; set; } = "";
 
         // Administrateur 1 --- 0..* Parking (gère)
-        private readonly List<Parking> parkings = new List<Parking>();
-
-        public Administrateur(int id, string nom, string prenom, string email, string motDePasse, string role)
-            : base(id, nom, prenom, email, motDePasse)
-        {
-            this.role = role;
-        }
-
-        public string Role
-        {
-            get => role;
-            set => role = value;
-        }
-
-        public IReadOnlyList<Parking> Parkings => parkings;
+        public List<Parking> Parkings { get; set; } = new List<Parking>();
 
         public void AjouterParking(Parking p)
         {
-            if (!parkings.Contains(p))
-                parkings.Add(p);
+            if (!Parkings.Contains(p))
+                Parkings.Add(p);
         }
 
-        public void AjouterPlace(Parking p, Place pl)
-        {
-            p.AjouterPlace(pl);
-        }
+        public void AjouterPlace(Parking p, Place pl) => p.AjouterPlace(pl);
 
-        /// <summary>
-        /// Remplace, dans tous les parkings gérés, le tarif ayant le même type de place.
-        /// </summary>
         public void ModifierTarif(Tarif t)
         {
-            foreach (var p in parkings)
-                p.AjouterOuRemplacerTarif(t);
-            Console.WriteLine($"Tarif '{t.TypePlace}' mis à jour : {t.PrixHeure} €/h, {t.PrixJour} €/jour.");
+            foreach (var p in Parkings)
+                p.AjouterOuRemplacerTarif(new Tarif { TypePlace = t.TypePlace, PrixHeure = t.PrixHeure, PrixJour = t.PrixJour });
         }
 
-        public void ConsulterStatistiques()
+        public string ConsulterStatistiques()
         {
-            Console.WriteLine("===== Statistiques =====");
-            foreach (var p in parkings)
-            {
-                Console.WriteLine($"{p.Nom} : {p.GetNombrePlacesLibres()}/{p.Places.Count} places libres, " +
-                                  $"taux d'occupation {p.GetTauxOccupation():P0}");
-            }
+            var sb = new StringBuilder();
+            foreach (var p in Parkings)
+                sb.AppendLine($"{p.Nom} : {p.GetNombrePlacesLibres()}/{p.Places.Count} places libres, " +
+                              $"taux d'occupation {p.GetTauxOccupation():P0}");
+            return sb.ToString();
         }
     }
 }
