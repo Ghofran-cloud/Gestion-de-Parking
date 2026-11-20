@@ -1,0 +1,49 @@
+using System;
+using GestionParking.Enums;
+
+namespace GestionParking.Models
+{
+    public class Paiement
+    {
+        public int Id { get; set; }
+        public double Montant { get; set; }
+        public DateTime? DatePaiement { get; set; }   
+        public ModePaiement Mode { get; set; }
+        public string Statut { get; set; } = "EN_ATTENTE";   
+
+    
+        public int ReservationId { get; set; }
+        public Reservation? Reservation { get; set; }
+
+        public bool Effectuer()
+        {
+            if (Statut != "EN_ATTENTE" || Montant <= 0)
+                return false;
+
+            DatePaiement = DateTime.Now;
+            Statut = "EFFECTUE";
+            return true;
+        }
+
+        public void Rembourser()
+        {
+            if (Statut != "EFFECTUE")
+                throw new InvalidOperationException("Seul un paiement effectué peut être remboursé.");
+            Statut = "REMBOURSE";
+        }
+
+        public string GenererRecu()
+        {
+            return "----------- REÇU -----------\n" +
+                   $"Paiement n°   : {Id}\n" +
+                   $"Réservation   : #{Reservation?.Id}\n" +
+                   $"Client        : {Reservation?.Client?.NomComplet}\n" +
+                   $"Place         : {Reservation?.Place?.Numero}\n" +
+                   $"Montant       : {Montant:0.00} €\n" +
+                   $"Mode          : {Mode}\n" +
+                   $"Date          : {DatePaiement:dd/MM/yyyy HH:mm}\n" +
+                   $"Statut        : {Statut}\n" +
+                   "----------------------------";
+        }
+    }
+}
