@@ -4,25 +4,16 @@ namespace GestionParking.Models
 {
     public class Tarif
     {
-        private string typePlace;
-        private double prixHeure;
-        private double prixJour;
+        public int Id { get; set; }                
+        public string TypePlace { get; set; } = "";
+        public double PrixHeure { get; set; }
+        public double PrixJour { get; set; }
 
-        public Tarif(string typePlace, double prixHeure, double prixJour)
-        {
-            this.typePlace = typePlace;
-            this.prixHeure = prixHeure;
-            this.prixJour = prixJour;
-        }
+        
+        public int ParkingId { get; set; }
+        public Parking? Parking { get; set; }
 
-        public string TypePlace => typePlace;
-        public double PrixHeure { get => prixHeure; set => prixHeure = value; }
-        public double PrixJour { get => prixJour; set => prixJour = value; }
-
-        /// <summary>
-        /// Calcule le prix : jours complets au prix journalier, puis heures restantes
-        /// (arrondies à l'heure supérieure) plafonnées au prix d'une journée.
-        /// </summary>
+     
         public double CalculerPrix(double dureeHeures)
         {
             if (dureeHeures <= 0) return 0;
@@ -30,10 +21,10 @@ namespace GestionParking.Models
             int jours = (int)(dureeHeures / 24);
             double heuresRestantes = Math.Ceiling(dureeHeures - jours * 24);
 
-            double prix = jours * prixJour + Math.Min(heuresRestantes * prixHeure, prixJour);
+            double prix = jours * PrixJour + Math.Min(heuresRestantes * PrixHeure, PrixJour);
             return Math.Round(prix, 2);
         }
 
-        public override string ToString() => $"{typePlace} : {prixHeure} €/h - {prixJour} €/jour";
+        public override string ToString() => $"{TypePlace} : {PrixHeure} €/h - {PrixJour} €/jour";
     }
 }
