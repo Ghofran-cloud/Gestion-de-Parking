@@ -8,26 +8,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionParking.Forms
 {
+
+   
+    public class FormClients : Form
+    {
+        
+
     /// <summary>
     /// Membre 1 — Gestion des clients (CRUD) et de leurs véhicules.
     /// </summary>
     public class FormClients : Form
     {
         // Un seul DbContext pendant toute la vie de la fenêtre
+
         private readonly ParkingContext db = new ParkingContext();
 
         private readonly DataGridView grilleClients = new DataGridView();
         private readonly DataGridView grilleVehicules = new DataGridView();
         private readonly TextBox txtRecherche = new TextBox();
 
+
+        
+
         // Champs du client
+
         private readonly TextBox txtNom = new TextBox();
         private readonly TextBox txtPrenom = new TextBox();
         private readonly TextBox txtEmail = new TextBox();
         private readonly TextBox txtTelephone = new TextBox();
         private readonly TextBox txtMotDePasse = new TextBox { UseSystemPasswordChar = true };
 
+
+        
+
         // Champs du véhicule
+
         private readonly TextBox txtImmat = new TextBox { Width = 130 };
         private readonly TextBox txtMarque = new TextBox { Width = 120 };
         private readonly TextBox txtModele = new TextBox { Width = 120 };
@@ -42,12 +57,19 @@ namespace GestionParking.Forms
             FormClosed += (s, e) => db.Dispose();
         }
 
+
+       
+        private void ConstruireInterface()
+        {
+            
+
         // =====================================================================
         //  Construction de l'interface
         // =====================================================================
         private void ConstruireInterface()
         {
             // ----- Zone centrale : recherche + grille des clients + véhicules -----
+
             var centre = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
 
             Theme.StyliserGrille(grilleClients);
@@ -66,7 +88,11 @@ namespace GestionParking.Forms
             centre.Controls.Add(barreRecherche);
             Controls.Add(centre);
 
+
+            
+
             // ----- Panneau de droite : formulaire du client -----
+
             var panneau = Theme.CreerPanneauDroite("Fiche client");
             int y = 60;
             Theme.AjouterChamp(panneau, "Nom *", txtNom, ref y);
@@ -86,7 +112,11 @@ namespace GestionParking.Forms
             Theme.CreerRangeeBoutons(panneau, y + 10, btnAjouter, btnModifier, btnSupprimer, btnVider);
             Controls.Add(panneau);
 
+
+            
+
             // ----- Bandeau du haut -----
+
             Controls.Add(Theme.CreerEntete("👤  Clients", "Sélectionnez un client dans la liste pour le modifier ou le supprimer"));
         }
 
@@ -129,9 +159,13 @@ namespace GestionParking.Forms
         private static Label PetitLabel(string texte) =>
             new Label { Text = texte, AutoSize = true, ForeColor = Theme.Gris, Margin = new Padding(6, 9, 2, 0) };
 
+
+       
+
         // =====================================================================
         //  Lecture (R du CRUD)
         // =====================================================================
+
         private void ChargerClients()
         {
             string filtre = txtRecherche.Text.Trim().ToLower();
@@ -183,9 +217,13 @@ namespace GestionParking.Forms
                 .ToList();
         }
 
+
+        
+
         // =====================================================================
         //  Création / Modification / Suppression (C, U, D du CRUD)
         // =====================================================================
+
         private bool FormulaireValide(bool motDePasseObligatoire)
         {
             if (txtNom.Text.Trim() == "" || txtPrenom.Text.Trim() == "" || txtEmail.Text.Trim() == "")
@@ -275,7 +313,11 @@ namespace GestionParking.Forms
 
             try
             {
+
+                
+
                 // On utilise la méthode métier de la classe Client
+
                 client.AjouterVehicule(new Vehicule
                 {
                     Immatriculation = txtImmat.Text.Trim().ToUpper(),
@@ -316,10 +358,14 @@ namespace GestionParking.Forms
             }
         }
 
+
+       
+
         /// <summary>
         /// Enregistre les changements dans la base. En cas d'erreur (ex : email déjà utilisé),
         /// on affiche un message et on annule les changements en mémoire.
         /// </summary>
+
         private bool Enregistrer()
         {
             try
