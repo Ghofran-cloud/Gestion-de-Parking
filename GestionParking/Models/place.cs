@@ -7,23 +7,20 @@ namespace GestionParking.Models
 {
     public class Place
     {
-        public int Id { get; set; }                 // NOUVEAU : clé primaire
+        public int Id { get; set; }                 
         public string Numero { get; set; } = "";
         public int Etage { get; set; }
         public string Type { get; set; } = "";
         public StatutPlace Statut { get; set; } = StatutPlace.LIBRE;
 
-        // Parking 1 ◆--- 1..* Place : clé étrangère + navigation
+       
         public int ParkingId { get; set; }
         public Parking? Parking { get; set; }
 
-        // Place 1 --- 0..* Reservation (réserve)
+        
         public List<Reservation> Reservations { get; set; } = new List<Reservation>();
 
-        /// <summary>
-        /// Disponible si la place n'est pas hors service et si aucune réservation active
-        /// (en attente ou confirmée) ne chevauche le créneau demandé.
-        /// </summary>
+       
         public bool EstDisponible(DateTime debut, DateTime fin)
         {
             if (Statut == StatutPlace.HORS_SERVICE) return false;
