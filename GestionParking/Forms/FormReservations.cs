@@ -9,7 +9,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionParking.Forms
 {
+
    
+
+    /// <summary>
+    /// Membre 3 — Gestion des réservations : réserver, modifier, payer, annuler, supprimer.
+    /// </summary>
+
     public class FormReservations : Form
     {
         private readonly ParkingContext db = new ParkingContext();
@@ -34,7 +40,13 @@ namespace GestionParking.Forms
             FormClosed += (s, e) => db.Dispose();
         }
 
+
         
+
+        // =====================================================================
+        //  Construction de l'interface
+        // =====================================================================
+
         private void ConstruireInterface()
         {
             var centre = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
@@ -58,7 +70,11 @@ namespace GestionParking.Forms
             centre.Controls.Add(barre);
             Controls.Add(centre);
 
+
             
+
+            // ----- Panneau de droite -----
+
             var panneau = Theme.CreerPanneauDroite("Réservation", 360);
             int y = 60;
             Theme.AjouterChamp(panneau, "Client *", cmbClient, ref y);
@@ -94,24 +110,39 @@ namespace GestionParking.Forms
 
             Controls.Add(Theme.CreerEntete("📅  Réservations", "Créez une réservation, payez-la ou annulez-la (remboursement automatique)"));
 
-            
+
+            // Le montant estimé se met à jour quand on change la place ou les dates
+
             cmbClient.SelectedIndexChanged += (s, e) => ChargerVehiculesDuClient();
             cmbPlace.SelectedIndexChanged += (s, e) => MettreAJourMontant();
             dtDebut.ValueChanged += (s, e) => MettreAJourMontant();
             dtFin.ValueChanged += (s, e) => MettreAJourMontant();
         }
 
+
         
         private void ChargerListes()
         {
             
+
+        // =====================================================================
+        //  Chargement des données
+        // =====================================================================
+        private void ChargerListes()
+        {
+            // Les clients avec leurs véhicules et réservations
+
             cmbClient.DataSource = db.Clients
                 .Include(c => c.Vehicules)
                 .Include(c => c.Reservations)
                 .OrderBy(c => c.Nom)
                 .ToList();
 
+
             
+
+            // Les places en service, avec leur parking (pour les tarifs) et leurs réservations (pour les chevauchements)
+
             cmbPlace.DataSource = db.Places
                 .Include(p => p.Parking).ThenInclude(pk => pk!.Tarifs)
                 .Include(p => p.Reservations)
@@ -204,7 +235,13 @@ namespace GestionParking.Forms
             }
         }
 
+
         
+
+        // =====================================================================
+        //  Actions
+        // =====================================================================
+
         private void Reserver()
         {
             if (cmbClient.SelectedItem is not Client client || cmbPlace.SelectedItem is not Place place)
@@ -215,7 +252,9 @@ namespace GestionParking.Forms
 
             try
             {
-                
+
+                // Méthode métier : vérifie les dates, le véhicule et la disponibilité de la place
+
                 var r = client.Reserver(place, dtDebut.Value, dtFin.Value, (cmbVehicule.SelectedItem as Vehicule)!);
                 db.SaveChanges();
                 Theme.Info($"Réservation #{r.Id} créée pour la place {place.Numero}.\nMontant : {r.CalculerMontant():0.00} €");
@@ -245,7 +284,7 @@ namespace GestionParking.Forms
             DateTime debut = dtDebut.Value, fin = dtFin.Value;
             if (fin <= debut) { Theme.Erreur("La date de fin doit être après la date de début."); return; }
 
-         
+
             bool chevauche = place.Reservations.Any(x =>
                 x.Id != r.Id
                 && (x.Statut == StatutReservation.EN_ATTENTE || x.Statut == StatutReservation.CONFIRMEE)
@@ -286,7 +325,10 @@ namespace GestionParking.Forms
 
             try
             {
-                r.Annuler();   
+
+
+                r.Annuler();   // libère la place et rembourse si déjà payée
+
                 db.SaveChanges();
                 string rembourse = r.Paiement?.Statut == "REMBOURSE" ? $"\n{r.Paiement.Montant:0.00} € remboursés." : "";
                 Theme.Info($"Réservation #{r.Id} annulée.{rembourse}");
@@ -319,4 +361,4 @@ namespace GestionParking.Forms
             MettreAJourMontant();
         }
     }
-}
+
