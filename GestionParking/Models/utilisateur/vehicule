@@ -2,24 +2,15 @@ namespace GestionParking.Models
 {
     public class Vehicule
     {
-        private string immatriculation;
-        private string marque;
-        private string modele;
-        private string type;
+        public int Id { get; set; }                 // NOUVEAU : clé primaire
+        public string Immatriculation { get; set; } = "";
+        public string Marque { get; set; } = "";
+        public string Modele { get; set; } = "";
+        public string Type { get; set; } = "";
 
-        public Vehicule(string immatriculation, string marque, string modele, string type)
-        {
-            this.immatriculation = immatriculation;
-            this.marque = marque;
-            this.modele = modele;
-            this.type = type;
-        }
+        public int ClientId { get; set; }
+        public Client? Client { get; set; }
 
-        public string Immatriculation => immatriculation;
-        public string Marque { get => marque; set => marque = value; }
-        public string Modele { get => modele; set => modele = value; }
-        public string Type { get => type; set => type = value; }
-
-        public override string ToString() => $"{marque} {modele} ({immatriculation})";
+        public override string ToString() => $"{Marque} {Modele} ({Immatriculation})";
     }
 }

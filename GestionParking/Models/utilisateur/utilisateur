@@ -1,55 +1,29 @@
-using System;
-
 namespace GestionParking.Models
 {
-    /// <summary>
-    /// Classe abstraite représentant un utilisateur du système (Client ou Administrateur).
-    /// </summary>
+   
     public abstract class Utilisateur
     {
-        // Attributs protégés (#) : accessibles par les classes filles
-        protected int id;
-        protected string nom;
-        protected string prenom;
-        protected string email;
-        protected string motDePasse;
+        public int Id { get; set; }                 
+        public string Nom { get; set; } = "";
+        public string Prenom { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string MotDePasse { get; set; } = "";
 
         public bool EstConnecte { get; private set; }
 
-        protected Utilisateur(int id, string nom, string prenom, string email, string motDePasse)
-        {
-            this.id = id;
-            this.nom = nom;
-            this.prenom = prenom;
-            this.email = email;
-            this.motDePasse = motDePasse;
-            EstConnecte = false;
-        }
-
-        // Propriétés en lecture seule pour l'extérieur
-        public int Id => id;
-        public string Nom => nom;
-        public string Prenom => prenom;
-        public string Email => email;
-
         public bool SeConnecter(string email, string mdp)
         {
-            if (this.email == email && motDePasse == mdp)
-            {
-                EstConnecte = true;
-                Console.WriteLine($"{prenom} {nom} est connecté(e).");
-                return true;
-            }
-            Console.WriteLine("Email ou mot de passe incorrect.");
-            return false;
+            EstConnecte = Email == email && MotDePasse == mdp;
+            return EstConnecte;
         }
 
         public void SeDeconnecter()
         {
             EstConnecte = false;
-            Console.WriteLine($"{prenom} {nom} est déconnecté(e).");
         }
 
-        public override string ToString() => $"[{id}] {prenom} {nom} ({email})";
+        public string NomComplet => $"{Prenom} {Nom}";
+
+        public override string ToString() => NomComplet;
     }
 }
