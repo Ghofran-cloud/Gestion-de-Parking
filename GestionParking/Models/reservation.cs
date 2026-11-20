@@ -5,69 +5,56 @@ namespace GestionParking.Models
 {
     public class Reservation
     {
-        private static int compteur = 0;
-
-        private int id;
-        private DateTime dateDebut;
-        private DateTime dateFin;
-        private StatutReservation statut;
-
-        public Reservation(DateTime dateDebut, DateTime dateFin, Client client, Place place, Vehicule vehicule)
-        {
-            id = ++compteur;
-            this.dateDebut = dateDebut;
-            this.dateFin = dateFin;
-            statut = StatutReservation.EN_ATTENTE;
-
-            Client = client;      
-            Place = place;        
-            Vehicule = vehicule;  
-
-            place.AjouterReservation(this);
-        }
-
-        public int Id => id;
-        public DateTime DateDebut => dateDebut;
-        public DateTime DateFin => dateFin;
-        public StatutReservation Statut => statut;
-
-        public Client Client { get; }
-        public Place Place { get; }
-        public Vehicule Vehicule { get; }
+        public int Id { get; set; }                 
+        public DateTime DateDebut { get; set; }
+        public DateTime DateFin { get; set; }
+        public StatutReservation Statut { get; set; } = StatutReservation.EN_ATTENTE;
 
         
-        public Paiement Paiement { get; private set; }
+        public int ClientId { get; set; }
+        public Client? Client { get; set; }
+
+        
+        public int PlaceId { get; set; }
+        public Place? Place { get; set; }
+
+        
+        public int VehiculeId { get; set; }
+        public Vehicule? Vehicule { get; set; }
+
+        
+        public Paiement? Paiement { get; set; }
 
         public void Confirmer()
         {
-            if (statut != StatutReservation.EN_ATTENTE)
-                throw new InvalidOperationException($"Impossible de confirmer une réservation {statut}.");
-            statut = StatutReservation.CONFIRMEE;
-            Place.Statut = StatutPlace.RESERVEE;
-            Console.WriteLine($"Réservation #{id} confirmée.");
+            if (Statut != StatutReservation.EN_ATTENTE)
+                throw new InvalidOperationException($"Impossible de confirmer une réservation {Statut}.");
+            Statut = StatutReservation.CONFIRMEE;
+            if (Place != null) Place.Statut = StatutPlace.RESERVEE;
         }
 
         public void Annuler()
         {
-            if (statut == StatutReservation.ANNULEE || statut == StatutReservation.TERMINEE)
-                throw new InvalidOperationException($"La réservation #{id} est déjà {statut}.");
+            if (Statut == StatutReservation.ANNULEE || Statut == StatutReservation.TERMINEE)
+                throw new InvalidOperationException($"La réservation #{Id} est déjà {Statut}.");
 
-            statut = StatutReservation.ANNULEE;
-            Place.Liberer();
+            Statut = StatutReservation.ANNULEE;
+            Place?.Liberer();
             if (Paiement != null && Paiement.Statut == "EFFECTUE")
                 Paiement.Rembourser();
-            Console.WriteLine($"Réservation #{id} annulée.");
         }
 
         public void Terminer()
         {
-            statut = StatutReservation.TERMINEE;
-            Place.Liberer();
+            Statut = StatutReservation.TERMINEE;
+            Place?.Liberer();
         }
 
+        
         public double CalculerMontant()
         {
-            double dureeHeures = (dateFin - dateDebut).TotalHours;
+            if (Place?.Parking == null) return 0;
+            double dureeHeures = (DateFin - DateDebut).TotalHours;
             Tarif tarif = Place.Parking.GetTarif(Place.Type);
             return tarif.CalculerPrix(dureeHeures);
         }
@@ -77,14 +64,16 @@ namespace GestionParking.Models
         {
             if (Paiement != null && Paiement.Statut == "EFFECTUE")
                 throw new InvalidOperationException("Cette réservation est déjà payée.");
+            if (Statut == StatutReservation.ANNULEE || Statut == StatutReservation.TERMINEE)
+                throw new InvalidOperationException($"Impossible de payer une réservation {Statut}.");
 
-            Paiement = new Paiement(CalculerMontant(), mode, this);
-            if (Paiement.Effectuer() && statut == StatutReservation.EN_ATTENTE)
+            Paiement = new Paiement { Montant = CalculerMontant(), Mode = mode, Reservation = this };
+            if (Paiement.Effectuer() && Statut == StatutReservation.EN_ATTENTE)
                 Confirmer();
             return Paiement;
         }
 
         public override string ToString() =>
-            $"Réservation #{id} | {Place.Numero} | {dateDebut:dd/MM HH:mm} → {dateFin:dd/MM HH:mm} | {statut}";
+            $"Réservation #{Id} | {Place?.Numero} | {DateDebut:dd/MM HH:mm} → {DateFin:dd/MM HH:mm} | {Statut}";
     }
 }
