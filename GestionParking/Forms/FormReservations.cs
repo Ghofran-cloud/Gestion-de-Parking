@@ -12,9 +12,7 @@ namespace GestionParking.Forms
 
    
 
-    /// <summary>
-    /// Membre 3 — Gestion des réservations : réserver, modifier, payer, annuler, supprimer.
-    /// </summary>
+    
 
     public class FormReservations : Form
     {
@@ -43,9 +41,7 @@ namespace GestionParking.Forms
 
         
 
-        // =====================================================================
-        //  Construction de l'interface
-        // =====================================================================
+  
 
         private void ConstruireInterface()
         {
@@ -73,7 +69,7 @@ namespace GestionParking.Forms
 
             
 
-            // ----- Panneau de droite -----
+      
 
             var panneau = Theme.CreerPanneauDroite("Réservation", 360);
             int y = 60;
@@ -125,12 +121,9 @@ namespace GestionParking.Forms
         {
             
 
-        // =====================================================================
-        //  Chargement des données
-        // =====================================================================
         private void ChargerListes()
         {
-            // Les clients avec leurs véhicules et réservations
+          
 
             cmbClient.DataSource = db.Clients
                 .Include(c => c.Vehicules)
@@ -141,7 +134,6 @@ namespace GestionParking.Forms
 
             
 
-            // Les places en service, avec leur parking (pour les tarifs) et leurs réservations (pour les chevauchements)
 
             cmbPlace.DataSource = db.Places
                 .Include(p => p.Parking).ThenInclude(pk => pk!.Tarifs)
@@ -237,10 +229,6 @@ namespace GestionParking.Forms
 
 
         
-
-        // =====================================================================
-        //  Actions
-        // =====================================================================
 
         private void Reserver()
         {
